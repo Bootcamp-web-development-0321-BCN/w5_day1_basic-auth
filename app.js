@@ -1,19 +1,19 @@
 require('dotenv').config();
 
-const bodyParser   = require('body-parser');
+const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
-const express      = require('express');
-const favicon      = require('serve-favicon');
-const hbs          = require('hbs');
-const mongoose     = require('mongoose');
-const logger       = require('morgan');
-const path         = require('path');
+const express = require('express');
+const favicon = require('serve-favicon');
+const hbs = require('hbs');
+const mongoose = require('mongoose');
+const logger = require('morgan');
+const path = require('path');
 const session = require('express-session');
-const MongoStore = require('connect-mongo')(session);
-
+const MongoStore = require('connect-mongo');
+const DB_URL = 'mongodb://localhost/basic-auth';
 
 mongoose
-  .connect('mongodb://localhost/basic-auth', {useNewUrlParser: true})
+  .connect(DB_URL, { useNewUrlParser: true })
   .then(x => {
     console.log(`Connected to Mongo! Database name: "${x.connections[0].name}"`)
   })
@@ -43,11 +43,10 @@ app.use(
   session({
     secret: "basic-auth-secret",
     resave: true, // Vuelva a guardar,
-    saveUninitialized: false, 
+    saveUninitialized: false,
     cookie: { maxAge: 3600000 },
-    store: new MongoStore({
-      mongooseConnection: mongoose.connection,
-      ttl: 60 * 60 * 24 * 7 // Time to live - 7 days (14 days by)
+    store: MongoStore.create({
+      mongoUrl: DB_URL
     })
   })
 )
